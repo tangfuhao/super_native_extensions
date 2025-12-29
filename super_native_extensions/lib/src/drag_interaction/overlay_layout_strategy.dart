@@ -349,13 +349,14 @@ class _MenuLayoutMobilePortrait extends MenuLayoutStrategy {
       ),
     );
 
-    final menuOverflow = math.max(
-      menuPreviewSizeMax.height +
-          _kMenuSpacing +
-          menuSize.height -
-          input.bounds.height,
-      0.0,
-    );
+    // final menuOverflow = math.max(
+    //   menuPreviewSizeMax.height +
+    //       _kMenuSpacing +
+    //       menuSize.height -
+    //       input.bounds.height,
+    //   0.0,
+    // );
+    final menuOverflow = 0.0; // 禁用拖拽调整
 
     final menuDragOffset = input.menuDragOffset * menuOverflow;
 
