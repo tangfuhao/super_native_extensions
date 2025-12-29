@@ -358,7 +358,7 @@ class _MenuLayoutMobilePortrait extends MenuLayoutStrategy {
     // );
     final menuOverflow = 0.0; // 禁用拖拽调整
 
-    final menuDragOffset = input.menuDragOffset * menuOverflow;
+    final menuDragOffset = input.menuDragOffset * menuOverflow;onLiftStart
 
     final actualMenuPreviewSize = input.menuPreviewSize.fitInto(
       Size(input.bounds.width, menuPreviewSizeMax.height - menuDragOffset),

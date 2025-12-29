@@ -38,6 +38,8 @@ class DragInteractionMenuConfiguration {
     required this.onMenuShown,
     required this.onMenuHidden,
     required this.onMenuPreviewTapped,
+    this.onLiftStart,
+    this.onInteractionEnd,
   });
 
   final MenuHandle menuHandle;
@@ -49,6 +51,14 @@ class DragInteractionMenuConfiguration {
   final VoidCallback onMenuShown;
   final ValueSetter<MenuResult> onMenuHidden;
   final VoidCallback onMenuPreviewTapped;
+
+  /// Called when lift animation starts (liftFactor > 0).
+  /// This is the best time to hide the original child widget.
+  final VoidCallback? onLiftStart;
+
+  /// Called when the entire interaction ends (menu closed, cancelled, or drag finished).
+  /// This is the best time to restore the original child widget visibility.
+  final VoidCallback? onInteractionEnd;
 }
 
 class DragInteractionConfiguration {
@@ -73,6 +83,7 @@ class DragInteractionConfiguration {
 
 class DragInteractionSession implements DragDelegate {
   bool _menuItemSelected = false;
+  bool _liftStarted = false;
 
   DragInteractionSession({
     required BuildContext buildContext,
@@ -141,6 +152,9 @@ class DragInteractionSession implements DragDelegate {
     }
     _entry.remove();
     configuration.onFinished();
+
+    // Notify that the entire interaction has ended
+    configuration.menuConfiguration?.onInteractionEnd?.call();
   }
 
   @override
@@ -228,6 +242,11 @@ class DragInteractionSession implements DragDelegate {
   @override
   @protected
   void updateState(DragState state) {
+    // Detect lift start (liftFactor transitions from 0 to > 0)
+    if (!_liftStarted && state.liftFactor > 0) {
+      _liftStarted = true;
+      configuration.menuConfiguration?.onLiftStart?.call();
+    }
     _key.currentState?.update(state);
   }
 }

@@ -320,6 +320,8 @@ class LongPressHandler {
             menuConfiguration.configurationId,
           );
         },
+        onLiftStart: menuConfiguration.onLiftStart,
+        onInteractionEnd: menuConfiguration.onInteractionEnd,
       );
     } else {
       interactionMenuConfiguration = null;

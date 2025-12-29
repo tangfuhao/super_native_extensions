@@ -40,6 +40,8 @@ class MobileMenuConfiguration {
     required this.previewBuilder,
     required this.menuWidgetBuilder,
     required this.iconTheme,
+    this.onLiftStart,
+    this.onInteractionEnd,
   }) : assert(previewImage == null || previewSize == null,
             'previewImage and previewSize are mutually exclusive');
 
@@ -53,6 +55,14 @@ class MobileMenuConfiguration {
   final Widget Function(double opacity) backgroundBuilder;
   final Widget Function(Size, WidgetSnapshot?) previewBuilder;
   final MobileMenuWidgetFactory menuWidgetBuilder;
+
+  /// Called when lift animation starts (liftFactor > 0).
+  /// This is the best time to hide the original child widget to avoid visual overlap.
+  final VoidCallback? onLiftStart;
+
+  /// Called when the entire interaction ends (menu closed, cancelled, or drag finished).
+  /// This is the best time to restore the original child widget visibility.
+  final VoidCallback? onInteractionEnd;
 
   void dispose() {
     liftImage.dispose();
