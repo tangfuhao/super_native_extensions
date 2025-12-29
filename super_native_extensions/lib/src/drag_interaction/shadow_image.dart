@@ -22,15 +22,8 @@ class ShadowImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (image.isImage) {
-      return _ShadowImage(
-        image: image.image,
-        shadowRadius: shadowRadius,
-        shadowOpacity: shadowOpacity,
-      );
-    } else {
-      return DisplayWidgetSnapshot(image);
-    }
+    // Simplified: no shadow, just render the image directly
+    return DisplayWidgetSnapshot(image);
   }
 }
 

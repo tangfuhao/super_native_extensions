@@ -208,11 +208,12 @@ class DragInteractionDrag implements SingleDrag {
     return Offset(0, offset * menuDragExtent());
   }
 
-  double get _distance => (_currentPosition -
-          initialOffset +
-          _dragOffsetToActualOffset(_menuDragOffset) -
-          _dragOffsetToActualOffset(initialMenuDragOffset))
-      .distance;
+  double get _distance =>
+      (_currentPosition -
+              initialOffset +
+              _dragOffsetToActualOffset(_menuDragOffset) -
+              _dragOffsetToActualOffset(initialMenuDragOffset))
+          .distance;
 
   bool _longPressRecognized = false;
 
@@ -263,8 +264,10 @@ class DragInteractionDrag implements SingleDrag {
     if (originalEnd <= currentTime) {
       return currentTime;
     } else {
-      final factor =
-          _computeFactor(originalEnd - originalDuration, originalEnd);
+      final factor = _computeFactor(
+        originalEnd - originalDuration,
+        originalEnd,
+      );
       return currentTime - newDuration * (1.0 - factor);
     }
   }
@@ -389,20 +392,14 @@ class DragInteractionDrag implements SingleDrag {
           delegate.canTransitionToDrag()) {
         _transitionToDrag();
       } else {
-        _updateDelegate(
-          liftFactor: liftFactor,
-          menuFactor: menuFactor,
-        );
+        _updateDelegate(liftFactor: liftFactor, menuFactor: menuFactor);
       }
     }
   }
 
   void _onTickMenu() {
     _updateMenuOverdrag();
-    _updateDelegate(
-      menuFactor: 1.0,
-      liftFactor: 1.0,
-    );
+    _updateDelegate(menuFactor: 1.0, liftFactor: 1.0);
     if (_ended) {
       delegate.menuDragEnded(_dragEndDetails?.velocity.pixelsPerSecond.dy ?? 0);
       dispose();
@@ -507,7 +504,9 @@ class DragInteractionDrag implements SingleDrag {
       return;
     }
     _currentPosition = details.globalPosition;
-    _maxDistance =
-        max(_maxDistance, (_currentPosition - initialOffset).distance);
+    _maxDistance = max(
+      _maxDistance,
+      (_currentPosition - initialOffset).distance,
+    );
   }
 }
