@@ -20,14 +20,15 @@ abstract class MobileMenuDelegate {
 
 void Function(String)? writingToolsSuggestionCallback;
 
-typedef MobileMenuWidgetFactory = Widget Function(
-  BuildContext context,
-  Menu rootMenu,
-  MobileMenuDelegate delegate,
-  AlignmentGeometry alignment,
-  ValueListenable<bool> canScrollListenable,
-  IconThemeData iconTheme,
-);
+typedef MobileMenuWidgetFactory =
+    Widget Function(
+      BuildContext context,
+      Menu rootMenu,
+      MobileMenuDelegate delegate,
+      AlignmentGeometry alignment,
+      ValueListenable<bool> canScrollListenable,
+      IconThemeData iconTheme,
+    );
 
 class MobileMenuConfiguration {
   MobileMenuConfiguration({
@@ -42,8 +43,10 @@ class MobileMenuConfiguration {
     required this.iconTheme,
     this.onLiftStart,
     this.onInteractionEnd,
-  }) : assert(previewImage == null || previewSize == null,
-            'previewImage and previewSize are mutually exclusive');
+  }) : assert(
+         previewImage == null || previewSize == null,
+         'previewImage and previewSize are mutually exclusive',
+       );
 
   final int configurationId;
   final TargetedWidgetSnapshot liftImage;
@@ -110,19 +113,13 @@ class MenuSerializationOptions {
 }
 
 class WritingToolsConfiguration {
-  WritingToolsConfiguration({
-    required this.rect,
-    required this.text,
-  });
+  WritingToolsConfiguration({required this.rect, required this.text});
 
   final Rect rect;
   final String text;
 
   Map<String, dynamic> serialize() {
-    return {
-      'rect': rect.serialize(),
-      'text': text,
-    };
+    return {'rect': rect.serialize(), 'text': text};
   }
 }
 
@@ -159,10 +156,7 @@ abstract class MenuContext {
 
   Future<MenuResult> showContextMenu(DesktopContextMenuRequest request);
 
-  Future<MenuHandle> registerMenu(
-    Menu menu,
-    MenuSerializationOptions options,
-  );
+  Future<MenuHandle> registerMenu(Menu menu, MenuSerializationOptions options);
 
   static Future<MenuContext> instance() {
     return _mutex.protect(() async {

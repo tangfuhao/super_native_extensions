@@ -219,12 +219,8 @@ class DragInteractionSession implements DragDelegate {
 
   @override
   bool canTransitionToDrag() {
-    // Transition to drag in Android with multi touch active messes
-    // up touch events and potentially locks up the application.
-    if (MultiTouchDetector.isMultiTouchActive()) {
-      return false;
-    }
-    return configuration.onDragStart != null;
+    // Disable drag functionality - only context menu is supported
+    return false;
   }
 
   @override

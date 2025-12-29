@@ -28,13 +28,19 @@ class MobileContextMenuWidget extends StatefulWidget {
     this.destructiveIconTheme,
     required this.contextMenuIsAllowed,
     required this.menuWidgetBuilder,
-  }) : assert(previewBuilder == null || deferredPreviewBuilder == null,
-            'Cannot use both previewBuilder and deferredPreviewBuilder');
+  }) : assert(
+         previewBuilder == null || deferredPreviewBuilder == null,
+         'Cannot use both previewBuilder and deferredPreviewBuilder',
+       );
 
   final Widget Function(BuildContext context, Widget child)? liftBuilder;
   final Widget Function(BuildContext context, Widget child)? previewBuilder;
-  final DeferredMenuPreview Function(BuildContext context, Widget child,
-      CancellationToken cancellationToken)? deferredPreviewBuilder;
+  final DeferredMenuPreview Function(
+    BuildContext context,
+    Widget child,
+    CancellationToken cancellationToken,
+  )?
+  deferredPreviewBuilder;
 
   final HitTestBehavior hitTestBehavior;
   final MenuProvider menuProvider;
@@ -57,13 +63,15 @@ class MobileContextMenuWidget extends StatefulWidget {
 class _ContextMenuWidgetState extends State<MobileContextMenuWidget> {
   raw.MenuSerializationOptions _serializationOptions(BuildContext context) {
     final mq = MediaQuery.of(context);
-    final iconTheme = widget.iconTheme ??
+    final iconTheme =
+        widget.iconTheme ??
         const IconThemeData.fallback().copyWith(
           color: mq.platformBrightness == Brightness.light
               ? const Color(0xFF090909)
               : const Color(0xFFF0F0F0),
         );
-    final destructiveIconTheme = widget.destructiveIconTheme ??
+    final destructiveIconTheme =
+        widget.destructiveIconTheme ??
         iconTheme.copyWith(
           color: mq.platformBrightness == Brightness.light
               ? const Color(0xFFFF3B2F)
@@ -77,7 +85,8 @@ class _ContextMenuWidgetState extends State<MobileContextMenuWidget> {
   }
 
   Future<MobileMenuConfiguration?> getMenuConfiguration(
-      MobileMenuConfigurationRequest request) async {
+    MobileMenuConfigurationRequest request,
+  ) async {
     if (!widget.contextMenuIsAllowed(request.location)) {
       return null;
     }
@@ -101,22 +110,27 @@ class _ContextMenuWidgetState extends State<MobileContextMenuWidget> {
       onInteractionEnd.dispose();
     }
 
-    final menu = await widget.menuProvider(MenuRequest(
-      onShowMenu: onShowMenu,
-      onHideMenu: onHideMenu,
-      onPreviewAction: onPreviewAction,
-      location: request.location,
-      onLiftStart: onLiftStart,
-      onInteractionEnd: onInteractionEnd,
-    ));
+    final menu = await widget.menuProvider(
+      MenuRequest(
+        onShowMenu: onShowMenu,
+        onHideMenu: onHideMenu,
+        onPreviewAction: onPreviewAction,
+        location: request.location,
+        onLiftStart: onLiftStart,
+        onInteractionEnd: onInteractionEnd,
+      ),
+    );
     final snapshotter = _snapshotterKey.currentState!;
     if (menu == null || !mounted) {
       disposeNotifiers();
       return null;
     }
 
-    final liftImage = await snapshotter.getSnapshot(request.location, _keyLift,
-        () => widget.liftBuilder?.call(context, widget.child));
+    final liftImage = await snapshotter.getSnapshot(
+      request.location,
+      _keyLift,
+      () => widget.liftBuilder?.call(context, widget.child),
+    );
 
     if (liftImage == null) {
       // might happen if the widget was removed from hierarchy.
@@ -126,8 +140,11 @@ class _ContextMenuWidgetState extends State<MobileContextMenuWidget> {
     }
 
     final previewImage = widget.previewBuilder != null
-        ? await snapshotter.getSnapshot(request.location, _keyPreview,
-            () => widget.previewBuilder!.call(context, widget.child))
+        ? await snapshotter.getSnapshot(
+            request.location,
+            _keyPreview,
+            () => widget.previewBuilder!.call(context, widget.child),
+          )
         : null;
 
     final menuContext = await raw.MenuContext.instance();
@@ -138,10 +155,7 @@ class _ContextMenuWidgetState extends State<MobileContextMenuWidget> {
     }
 
     final serializationOptions = _serializationOptions(context);
-    final handle = await menuContext.registerMenu(
-      menu,
-      serializationOptions,
-    );
+    final handle = await menuContext.registerMenu(menu, serializationOptions);
 
     MenuContextDelegate.instance.registerOnHideCallback(
       request.configurationId,
@@ -174,32 +188,35 @@ class _ContextMenuWidgetState extends State<MobileContextMenuWidget> {
       handle: handle,
       backgroundBuilder: (opacity) {
         return Builder(
-            builder: (context) => widget.menuWidgetBuilder
-                .buildOverlayBackground(context, opacity));
+          builder: (context) =>
+              widget.menuWidgetBuilder.buildOverlayBackground(context, opacity),
+        );
       },
       previewBuilder: (size, snapshot) {
         return MenuPreviewWidget(
-            size: size,
-            menuWidgetBuilder: widget.menuWidgetBuilder,
-            image: snapshot);
-      },
-      menuWidgetBuilder: (
-        BuildContext context,
-        Menu rootMenu,
-        raw.MobileMenuDelegate delegate,
-        AlignmentGeometry alignment,
-        ValueListenable<bool> canScrollListenable,
-        IconThemeData iconTheme,
-      ) {
-        return MenuStack(
-          rootMenu: rootMenu,
-          builder: widget.menuWidgetBuilder,
-          canScrollListenable: canScrollListenable,
-          delegate: delegate,
-          iconTheme: iconTheme,
-          menuAlignment: alignment,
+          size: size,
+          menuWidgetBuilder: widget.menuWidgetBuilder,
+          image: snapshot,
         );
       },
+      menuWidgetBuilder:
+          (
+            BuildContext context,
+            Menu rootMenu,
+            raw.MobileMenuDelegate delegate,
+            AlignmentGeometry alignment,
+            ValueListenable<bool> canScrollListenable,
+            IconThemeData iconTheme,
+          ) {
+            return MenuStack(
+              rootMenu: rootMenu,
+              builder: widget.menuWidgetBuilder,
+              canScrollListenable: canScrollListenable,
+              delegate: delegate,
+              iconTheme: iconTheme,
+              menuAlignment: alignment,
+            );
+          },
       iconTheme: serializationOptions.iconTheme,
       onLiftStart: onLiftStart.notify,
       onInteractionEnd: () {
@@ -211,25 +228,36 @@ class _ContextMenuWidgetState extends State<MobileContextMenuWidget> {
   }
 
   Size _getDeferredPreview(
-      Listenable onHide, ValueSetter<WidgetSnapshot> imageSetter) {
+    Listenable onHide,
+    ValueSetter<WidgetSnapshot> imageSetter,
+  ) {
     final cancellationToken = raw.SimpleCancellationToken();
     onHide.addListener(cancellationToken.cancel);
     final deferredPreview = widget.deferredPreviewBuilder!(
-        context, widget.child, cancellationToken);
-    deferredPreview.widget.then((widget) {
-      if (!cancellationToken.cancelled) {
+      context,
+      widget.child,
+      cancellationToken,
+    );
+    deferredPreview.widget.then(
+      (widget) {
+        if (!cancellationToken.cancelled) {
+          cancellationToken.dispose();
+          _updateMenuPreview(widget, deferredPreview.size, imageSetter);
+        }
+      },
+      onError: (error) {
         cancellationToken.dispose();
-        _updateMenuPreview(widget, deferredPreview.size, imageSetter);
-      }
-    }, onError: (error) {
-      cancellationToken.dispose();
-    });
+      },
+    );
 
     return deferredPreview.size;
   }
 
-  void _updateMenuPreview(Widget preview, Size size,
-      ValueSetter<WidgetSnapshot> imageSetter) async {
+  void _updateMenuPreview(
+    Widget preview,
+    Size size,
+    ValueSetter<WidgetSnapshot> imageSetter,
+  ) async {
     final snapshotter = _snapshotterKey.currentState!;
     final child = SnapshotSettings(
       constraintsTransform: (_) => BoxConstraints.tight(size),
@@ -238,7 +266,8 @@ class _ContextMenuWidgetState extends State<MobileContextMenuWidget> {
     final previewImage = await snapshotter.getSnapshot(
       Offset.zero,
       _SnapshotKey(
-          'DeferredPreview'), // Deferred preview must have separate key.
+        'DeferredPreview',
+      ), // Deferred preview must have separate key.
       () => child,
     );
     if (previewImage != null) {
@@ -259,18 +288,14 @@ class _ContextMenuWidgetState extends State<MobileContextMenuWidget> {
               defaultTargetPlatform == TargetPlatform.android) {
             {
               _snapshotterKey.currentState?.registerWidget(
-                  _keyLift,
-                  widget.liftBuilder?.call(
-                    context,
-                    widget.child,
-                  ));
+                _keyLift,
+                widget.liftBuilder?.call(context, widget.child),
+              );
               if (widget.previewBuilder != null) {
                 _snapshotterKey.currentState?.registerWidget(
-                    _keyPreview,
-                    widget.previewBuilder!.call(
-                      context,
-                      widget.child,
-                    ));
+                  _keyPreview,
+                  widget.previewBuilder!.call(context, widget.child),
+                );
               }
             }
           }
@@ -320,13 +345,14 @@ class _LongPressDetector extends StatelessWidget {
         gestures: {
           PanGestureRecognizer:
               GestureRecognizerFactoryWithHandlers<PanGestureRecognizer>(
-            () => PanGestureRecognizer(),
-            (recognizer) {
-              recognizer.gestureSettings =
-                  const DeviceGestureSettings(touchSlop: double.maxFinite);
-              recognizer.onDown = (_) {};
-            },
-          ),
+                () => PanGestureRecognizer(),
+                (recognizer) {
+                  recognizer.gestureSettings = const DeviceGestureSettings(
+                    touchSlop: double.maxFinite,
+                  );
+                  recognizer.onDown = (_) {};
+                },
+              ),
         },
         child: child,
       );
@@ -337,20 +363,24 @@ class _LongPressDetector extends StatelessWidget {
           gestures: {
             raw.SingleDragDelayedGestureRecognizer:
                 GestureRecognizerFactoryWithHandlers<
-                        raw.SingleDragDelayedGestureRecognizer>(
-                    () => raw.SingleDragDelayedGestureRecognizer(
-                          beginDuration: const Duration(milliseconds: 150),
-                          duration: const Duration(milliseconds: 300),
-                        ), (recognizer) {
-              recognizer.shouldAcceptTouchAtPosition = contextMenuIsAllowed;
-              recognizer.onDragStart = (globalPosition) {
-                return longPressHandler?.dragGestureForPosition(
-                  context: context,
-                  position: globalPosition,
-                  pointer: recognizer.lastPointer!,
-                );
-              };
-            }),
+                  raw.SingleDragDelayedGestureRecognizer
+                >(
+                  () => raw.SingleDragDelayedGestureRecognizer(
+                    beginDuration: const Duration(milliseconds: 150),
+                    duration: const Duration(milliseconds: 300),
+                  ),
+                  (recognizer) {
+                    recognizer.shouldAcceptTouchAtPosition =
+                        contextMenuIsAllowed;
+                    recognizer.onDragStart = (globalPosition) {
+                      return longPressHandler?.dragGestureForPosition(
+                        context: context,
+                        position: globalPosition,
+                        pointer: recognizer.lastPointer!,
+                      );
+                    };
+                  },
+                ),
           },
           child: child,
         ),
