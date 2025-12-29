@@ -93,6 +93,11 @@ class _ContextMenuWidgetState extends State<MobileContextMenuWidget> {
       onHideMenu.dispose();
       onPreviewAction.dispose();
       onLiftStart.dispose();
+      // 注意：onInteractionEnd 不在这里 dispose，它会在交互结束后自动清理
+      // 因为 onInteractionEnd 需要在 _done() 中被调用，而 _done() 在 disposeNotifiers() 之后
+    }
+
+    void disposeInteractionEnd() {
       onInteractionEnd.dispose();
     }
 
@@ -197,7 +202,11 @@ class _ContextMenuWidgetState extends State<MobileContextMenuWidget> {
       },
       iconTheme: serializationOptions.iconTheme,
       onLiftStart: onLiftStart.notify,
-      onInteractionEnd: onInteractionEnd.notify,
+      onInteractionEnd: () {
+        onInteractionEnd.notify();
+        // 在回调触发后才 dispose
+        disposeInteractionEnd();
+      },
     );
   }
 
