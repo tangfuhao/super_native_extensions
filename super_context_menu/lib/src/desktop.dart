@@ -213,6 +213,8 @@ class DesktopContextMenuWidget extends StatelessWidget {
     final onShowMenu = SimpleNotifier();
     final onHideMenu = ValueNotifier<raw.MenuResult?>(null);
     final onPreviewAction = SimpleNotifier();
+    final onLiftStart = SimpleNotifier();
+    final onInteractionEnd = SimpleNotifier();
     raw.MenuHandle? handle;
     try {
       final request = MenuRequest(
@@ -220,6 +222,8 @@ class DesktopContextMenuWidget extends StatelessWidget {
         onHideMenu: onHideMenu,
         onPreviewAction: onPreviewAction,
         location: globalPosition,
+        onLiftStart: onLiftStart,
+        onInteractionEnd: onInteractionEnd,
       );
       final menu = await menuProvider(request);
       final menuContext = await raw.MenuContext.instance();

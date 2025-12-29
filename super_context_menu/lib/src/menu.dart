@@ -47,8 +47,10 @@ class MenuRequest {
 
 typedef MenuProvider = FutureOr<Menu?> Function(MenuRequest request);
 
-typedef MenuConfigurationProvider = Future<MobileMenuConfiguration?> Function(
-    MobileMenuConfigurationRequest request);
+typedef MenuConfigurationProvider =
+    Future<MobileMenuConfiguration?> Function(
+      MobileMenuConfigurationRequest request,
+    );
 
 class DeferredMenuPreview {
   DeferredMenuPreview(this.size, this.widget);
@@ -74,17 +76,23 @@ class ContextMenuWidget extends StatelessWidget {
     MobileMenuWidgetBuilder? mobileMenuWidgetBuilder,
     DesktopMenuWidgetBuilder? desktopMenuWidgetBuilder,
     this.writingToolsConfigurationProvider,
-  })  : assert(previewBuilder == null || deferredPreviewBuilder == null,
-            'Cannot use both previewBuilder and deferredPreviewBuilder'),
-        mobileMenuWidgetBuilder =
-            mobileMenuWidgetBuilder ?? DefaultMobileMenuWidgetBuilder.instance,
-        desktopMenuWidgetBuilder =
-            desktopMenuWidgetBuilder ?? DefaultDesktopMenuWidgetBuilder();
+  }) : assert(
+         previewBuilder == null || deferredPreviewBuilder == null,
+         'Cannot use both previewBuilder and deferredPreviewBuilder',
+       ),
+       mobileMenuWidgetBuilder =
+           mobileMenuWidgetBuilder ?? DefaultMobileMenuWidgetBuilder.instance,
+       desktopMenuWidgetBuilder =
+           desktopMenuWidgetBuilder ?? DefaultDesktopMenuWidgetBuilder();
 
   final Widget Function(BuildContext context, Widget child)? liftBuilder;
   final Widget Function(BuildContext context, Widget child)? previewBuilder;
-  final DeferredMenuPreview Function(BuildContext context, Widget child,
-      CancellationToken cancellationToken)? deferredPreviewBuilder;
+  final DeferredMenuPreview Function(
+    BuildContext context,
+    Widget child,
+    CancellationToken cancellationToken,
+  )?
+  deferredPreviewBuilder;
 
   final HitTestBehavior hitTestBehavior;
   final MenuProvider menuProvider;
@@ -93,7 +101,7 @@ class ContextMenuWidget extends StatelessWidget {
   final MobileMenuWidgetBuilder mobileMenuWidgetBuilder;
   final DesktopMenuWidgetBuilder desktopMenuWidgetBuilder;
   final WritingToolsConfiguration? Function()?
-      writingToolsConfigurationProvider;
+  writingToolsConfigurationProvider;
 
   /// Tap region group ids for which this context menu will be part of.
   /// Can be used to avoid losing input focus when user clicks on the menu.
