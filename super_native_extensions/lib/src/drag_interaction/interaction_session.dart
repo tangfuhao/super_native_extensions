@@ -10,18 +10,16 @@ import 'long_press_handler.dart';
 import 'drag_state_machine.dart';
 import 'overlay_widget.dart';
 
-typedef DragStartCallback = void Function(
-  Offset globalPosition,
-  int? pointer,
-  WidgetSnapshot compositeSnapshot,
-  VoidCallback draggingStarted,
-);
+typedef DragStartCallback =
+    void Function(
+      Offset globalPosition,
+      int? pointer,
+      WidgetSnapshot compositeSnapshot,
+      VoidCallback draggingStarted,
+    );
 
 class ItemConfiguration {
-  ItemConfiguration({
-    required this.liftImage,
-    required this.dragImage,
-  });
+  ItemConfiguration({required this.liftImage, required this.dragImage});
 
   final TargetedWidgetSnapshot liftImage;
   final WidgetSnapshot dragImage;
@@ -111,11 +109,12 @@ class DragInteractionSession implements DragDelegate {
 
   SingleDrag intoDrag(Offset offset, int pointer) {
     return DragInteractionDrag(
-        delegate: this,
-        pointer: pointer,
-        initialOffset: offset,
-        menuDragExtent: _menuDragExtent,
-        initialMenuDragOffset: 0);
+      delegate: this,
+      pointer: pointer,
+      initialOffset: offset,
+      menuDragExtent: _menuDragExtent,
+      initialMenuDragOffset: 0,
+    );
   }
 
   DragInteractionConfiguration configuration;
@@ -145,9 +144,9 @@ class DragInteractionSession implements DragDelegate {
     _isDone = true;
 
     if (!_menuHidden) {
-      configuration.menuConfiguration?.onMenuHidden(MenuResult(
-        itemSelected: _menuItemSelected,
-      ));
+      configuration.menuConfiguration?.onMenuHidden(
+        MenuResult(itemSelected: _menuItemSelected),
+      );
       _menuHidden = true;
     }
     _entry.remove();
@@ -181,9 +180,9 @@ class DragInteractionSession implements DragDelegate {
   @override
   void beginTransitionToDrag() {
     if (_menuShown) {
-      configuration.menuConfiguration?.onMenuHidden(MenuResult(
-        itemSelected: false,
-      ));
+      configuration.menuConfiguration?.onMenuHidden(
+        MenuResult(itemSelected: false),
+      );
       _menuHidden = true;
       _menuShown = false;
     }

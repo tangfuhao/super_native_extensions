@@ -366,20 +366,9 @@ class DragInteractionDrag implements SingleDrag {
   }
 
   void _updateMenuOverdrag() {
-    var menuDelta = _currentPosition -
-        initialOffset -
-        _dragOffsetToActualOffset(initialMenuDragOffset);
-
-    if (menuDelta.dy < 0) {
-      final menuDragExtent = this.menuDragExtent();
-      final menuDragOffsetPixels = min(-menuDelta.dy, menuDragExtent);
-      menuDelta = Offset(menuDelta.dx, menuDelta.dy + menuDragOffsetPixels);
-      _menuDragOffset =
-          menuDragExtent > 0 ? menuDragOffsetPixels / menuDragExtent : 0;
-    } else {
-      _menuDragOffset = 0;
-    }
-    _menuOverdrag = menuDelta;
+    // Disable menu overdrag - keep menu position fixed
+    _menuDragOffset = 0;
+    _menuOverdrag = Offset.zero;
   }
 
   void _onTickLiftedToMenu() {
