@@ -85,11 +85,15 @@ class _ContextMenuWidgetState extends State<MobileContextMenuWidget> {
     final onShowMenu = SimpleNotifier();
     final onHideMenu = ValueNotifier<MenuResult?>(null);
     final onPreviewAction = SimpleNotifier();
+    final onLiftStart = SimpleNotifier();
+    final onInteractionEnd = SimpleNotifier();
 
     void disposeNotifiers() {
       onShowMenu.dispose();
       onHideMenu.dispose();
       onPreviewAction.dispose();
+      onLiftStart.dispose();
+      onInteractionEnd.dispose();
     }
 
     final menu = await widget.menuProvider(MenuRequest(
@@ -97,6 +101,8 @@ class _ContextMenuWidgetState extends State<MobileContextMenuWidget> {
       onHideMenu: onHideMenu,
       onPreviewAction: onPreviewAction,
       location: request.location,
+      onLiftStart: onLiftStart,
+      onInteractionEnd: onInteractionEnd,
     ));
     final snapshotter = _snapshotterKey.currentState!;
     if (menu == null || !mounted) {
@@ -190,6 +196,8 @@ class _ContextMenuWidgetState extends State<MobileContextMenuWidget> {
         );
       },
       iconTheme: serializationOptions.iconTheme,
+      onLiftStart: onLiftStart.notify,
+      onInteractionEnd: onInteractionEnd.notify,
     );
   }
 

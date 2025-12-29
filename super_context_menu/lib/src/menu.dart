@@ -27,11 +27,21 @@ class MenuRequest {
   /// Menu location in global coordinates.
   final Offset location;
 
+  /// Android only. Invoked when lift animation starts (liftFactor > 0).
+  /// This is the best time to hide the original child widget to avoid visual overlap.
+  final Listenable onLiftStart;
+
+  /// Android only. Invoked when the entire interaction ends.
+  /// This is the best time to restore the original child widget visibility.
+  final Listenable onInteractionEnd;
+
   MenuRequest({
     required this.onShowMenu,
     required this.onHideMenu,
     required this.onPreviewAction,
     required this.location,
+    required this.onLiftStart,
+    required this.onInteractionEnd,
   });
 }
 
