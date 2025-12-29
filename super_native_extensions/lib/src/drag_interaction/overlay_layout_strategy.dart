@@ -83,8 +83,10 @@ class _MenuGeometry {
   _MenuGeometry _fitIntoHorizontal(Rect rect) {
     final res = _fitInto(rect);
     final desiredPreviewRect = previewRect.moveIntoRect(rect);
-    final correction =
-        Offset(0, res.previewRect.center.dy - desiredPreviewRect.center.dy);
+    final correction = Offset(
+      0,
+      res.previewRect.center.dy - desiredPreviewRect.center.dy,
+    );
 
     return _MenuGeometry(
       id: res.id,
@@ -129,15 +131,17 @@ _MenuGeometry _bestFitGeometry(
   String? previousLayoutId,
 ) {
   if (previousLayoutId != null) {
-    final previous =
-        geometry.firstWhereOrNull((element) => element.id == previousLayoutId);
+    final previous = geometry.firstWhereOrNull(
+      (element) => element.id == previousLayoutId,
+    );
     if (previous != null) {
       return previous.fitInto(bounds);
     }
   }
   // Try to find first element that fully fits
-  final firstThatFits =
-      geometry.firstWhereOrNull((element) => element.fitsInto(bounds));
+  final firstThatFits = geometry.firstWhereOrNull(
+    (element) => element.fitsInto(bounds),
+  );
   if (firstThatFits != null) {
     return firstThatFits;
   }
@@ -184,9 +188,7 @@ abstract class MenuLayoutStrategy {
 const _kMenuSpacing = 15.0;
 
 class _MenuLayout extends MenuLayoutStrategy {
-  _MenuLayout({
-    required this.allowVerticalAttachment,
-  });
+  _MenuLayout({required this.allowVerticalAttachment});
 
   final bool allowVerticalAttachment;
 
@@ -194,8 +196,9 @@ class _MenuLayout extends MenuLayoutStrategy {
   MenuLayout layout(MenuLayoutInput input) {
     final menuSize = input.layoutMenu(BoxConstraints.loose(input.bounds.size));
     final spaceForPreview = Size(
-        input.bounds.width - menuSize.width - _kMenuSpacing,
-        input.bounds.height);
+      input.bounds.width - menuSize.width - _kMenuSpacing,
+      input.bounds.height,
+    );
     final previewSize = input.menuPreviewSize.fitInto(spaceForPreview);
     final previewRect = Rect.fromCenter(
       center: input.primaryItem.center,
@@ -209,10 +212,8 @@ class _MenuLayout extends MenuLayoutStrategy {
         id: 'vertical-bottom-left',
         previewRect: previewRect,
         menuSize: menuSize,
-        menuPosition: (previewRect) => Offset(
-          previewRect.left,
-          previewRect.bottom + _kMenuSpacing,
-        ),
+        menuPosition: (previewRect) =>
+            Offset(previewRect.left, previewRect.bottom + _kMenuSpacing),
         menuAlignment: Alignment.topLeft,
       ),
       // Aligned to bottom right corner
@@ -256,10 +257,8 @@ class _MenuLayout extends MenuLayoutStrategy {
         id: 'horizontal-top-right',
         previewRect: previewRect,
         menuSize: menuSize,
-        menuPosition: (previewRect) => Offset(
-          previewRect.right + _kMenuSpacing,
-          previewRect.top,
-        ),
+        menuPosition: (previewRect) =>
+            Offset(previewRect.right + _kMenuSpacing, previewRect.top),
         menuAlignment: Alignment.topLeft,
       ),
       // Aligned to bottom right corner
@@ -301,16 +300,10 @@ class _MenuLayout extends MenuLayoutStrategy {
     if (allowVerticalAttachment &&
         input.menuPreviewSize.width > input.menuPreviewSize.height) {
       // prefer vertical attachment on wide previews
-      geometries = [
-        ...vertical,
-        ...horizontal,
-      ];
+      geometries = [...vertical, ...horizontal];
     } else if (allowVerticalAttachment) {
       // prefer horizontal attachment on wide previews
-      geometries = [
-        ...horizontal,
-        ...vertical,
-      ];
+      geometries = [...horizontal, ...vertical];
     } else {
       geometries = horizontal;
     }
@@ -334,33 +327,41 @@ class _MenuLayout extends MenuLayoutStrategy {
 
 class _MenuLayoutMobilePortrait extends MenuLayoutStrategy {
   // 水平边距
-  static const _kHorizontalPadding = 16.0;
+  static const _kHorizontalPadding = 12.0;
 
   @override
   MenuLayout layout(MenuLayoutInput input) {
     // 计算预览尺寸限制
-    final menuPreviewSizeMin = input.menuPreviewSize
-        .fitInto(Size(input.bounds.width, input.bounds.height / 4));
-    final menuPreviewSizeMax = input.menuPreviewSize
-        .fitInto(Size(input.bounds.width, input.bounds.height * 3 / 4));
+    final menuPreviewSizeMin = input.menuPreviewSize.fitInto(
+      Size(input.bounds.width, input.bounds.height / 4),
+    );
+    final menuPreviewSizeMax = input.menuPreviewSize.fitInto(
+      Size(input.bounds.width, input.bounds.height * 3 / 4),
+    );
 
     // 计算菜单尺寸
-    final menuSize = input.layoutMenu(BoxConstraints.loose(Size(
-      input.bounds.width - _kHorizontalPadding * 2,
-      input.bounds.height - menuPreviewSizeMin.height - _kMenuSpacing,
-    )));
+    final menuSize = input.layoutMenu(
+      BoxConstraints.loose(
+        Size(
+          input.bounds.width - _kHorizontalPadding * 2,
+          input.bounds.height - menuPreviewSizeMin.height - _kMenuSpacing,
+        ),
+      ),
+    );
 
     final menuOverflow = math.max(
-        menuPreviewSizeMax.height +
-            _kMenuSpacing +
-            menuSize.height -
-            input.bounds.height,
-        0.0);
+      menuPreviewSizeMax.height +
+          _kMenuSpacing +
+          menuSize.height -
+          input.bounds.height,
+      0.0,
+    );
 
     final menuDragOffset = input.menuDragOffset * menuOverflow;
 
     final actualMenuPreviewSize = input.menuPreviewSize.fitInto(
-        Size(input.bounds.width, menuPreviewSizeMax.height - menuDragOffset));
+      Size(input.bounds.width, menuPreviewSizeMax.height - menuDragOffset),
+    );
 
     // 策略1: 预览位置尽量不变 - 直接使用原始 item 的中心位置
     final previewRect = Rect.fromCenter(
@@ -378,7 +379,8 @@ class _MenuLayoutMobilePortrait extends MenuLayoutStrategy {
     final menuNeedsHeight = menuSize.height + _kMenuSpacing;
 
     // 优先向下布局，空间不够时向上
-    final preferBottom = spaceBelow >= menuNeedsHeight ||
+    final preferBottom =
+        spaceBelow >= menuNeedsHeight ||
         spaceBelow >= spaceAbove ||
         spaceAbove < menuNeedsHeight;
 
@@ -391,8 +393,9 @@ class _MenuLayoutMobilePortrait extends MenuLayoutStrategy {
     );
 
     // 调整边界以容纳溢出
-    final adjustedBounds =
-        input.bounds.copyWith(height: input.bounds.height + menuOverflow);
+    final adjustedBounds = input.bounds.copyWith(
+      height: input.bounds.height + menuOverflow,
+    );
 
     final geometry = _bestFitGeometry(
       adjustedBounds,
@@ -438,79 +441,91 @@ class _MenuLayoutMobilePortrait extends MenuLayoutStrategy {
     // 检查左对齐是否可行（不超出边界）
     final leftAlignedFits =
         menuLeftAligned >= bounds.left + _kHorizontalPadding &&
-            menuLeftAligned + menuSize.width <=
-                bounds.right - _kHorizontalPadding;
+        menuLeftAligned + menuSize.width <= bounds.right - _kHorizontalPadding;
 
     // 检查右对齐是否可行
     final rightAlignedFits =
         menuRightAligned >= bounds.left + _kHorizontalPadding &&
-            menuRightAligned + menuSize.width <=
-                bounds.right - _kHorizontalPadding;
+        menuRightAligned + menuSize.width <= bounds.right - _kHorizontalPadding;
 
     // === 下方布局 ===
     if (leftAlignedFits) {
-      bottomGeometries.add(_MenuGeometry(
-        id: 'bottom-left',
-        previewRect: previewRect,
-        menuSize: menuSize,
-        menuPosition: (p) => Offset(p.left, p.bottom + _kMenuSpacing),
-        menuAlignment: Alignment.topLeft,
-      ));
+      bottomGeometries.add(
+        _MenuGeometry(
+          id: 'bottom-left',
+          previewRect: previewRect,
+          menuSize: menuSize,
+          menuPosition: (p) => Offset(p.left, p.bottom + _kMenuSpacing),
+          menuAlignment: Alignment.topLeft,
+        ),
+      );
     }
     if (rightAlignedFits) {
-      bottomGeometries.add(_MenuGeometry(
-        id: 'bottom-right',
-        previewRect: previewRect,
-        menuSize: menuSize,
-        menuPosition: (p) =>
-            Offset(p.right - menuSize.width, p.bottom + _kMenuSpacing),
-        menuAlignment: Alignment.topRight,
-      ));
+      bottomGeometries.add(
+        _MenuGeometry(
+          id: 'bottom-right',
+          previewRect: previewRect,
+          menuSize: menuSize,
+          menuPosition: (p) =>
+              Offset(p.right - menuSize.width, p.bottom + _kMenuSpacing),
+          menuAlignment: Alignment.topRight,
+        ),
+      );
     }
     // 居中作为备选
-    bottomGeometries.add(_MenuGeometry(
-      id: 'bottom-center',
-      previewRect: previewRect,
-      menuSize: menuSize,
-      menuPosition: (p) => Offset(
-        (bounds.left + bounds.right) / 2 - menuSize.width / 2,
-        p.bottom + _kMenuSpacing,
-      ),
-      menuAlignment: Alignment.topCenter,
-    ));
-
-    // === 上方布局 ===
-    if (leftAlignedFits) {
-      topGeometries.add(_MenuGeometry(
-        id: 'top-left',
-        previewRect: previewRect,
-        menuSize: menuSize,
-        menuPosition: (p) =>
-            Offset(p.left, p.top - _kMenuSpacing - menuSize.height),
-        menuAlignment: Alignment.bottomLeft,
-      ));
-    }
-    if (rightAlignedFits) {
-      topGeometries.add(_MenuGeometry(
-        id: 'top-right',
+    bottomGeometries.add(
+      _MenuGeometry(
+        id: 'bottom-center',
         previewRect: previewRect,
         menuSize: menuSize,
         menuPosition: (p) => Offset(
-            p.right - menuSize.width, p.top - _kMenuSpacing - menuSize.height),
-        menuAlignment: Alignment.bottomRight,
-      ));
+          (bounds.left + bounds.right) / 2 - menuSize.width / 2,
+          p.bottom + _kMenuSpacing,
+        ),
+        menuAlignment: Alignment.topCenter,
+      ),
+    );
+
+    // === 上方布局 ===
+    if (leftAlignedFits) {
+      topGeometries.add(
+        _MenuGeometry(
+          id: 'top-left',
+          previewRect: previewRect,
+          menuSize: menuSize,
+          menuPosition: (p) =>
+              Offset(p.left, p.top - _kMenuSpacing - menuSize.height),
+          menuAlignment: Alignment.bottomLeft,
+        ),
+      );
+    }
+    if (rightAlignedFits) {
+      topGeometries.add(
+        _MenuGeometry(
+          id: 'top-right',
+          previewRect: previewRect,
+          menuSize: menuSize,
+          menuPosition: (p) => Offset(
+            p.right - menuSize.width,
+            p.top - _kMenuSpacing - menuSize.height,
+          ),
+          menuAlignment: Alignment.bottomRight,
+        ),
+      );
     }
     // 居中作为备选
-    topGeometries.add(_MenuGeometry(
-      id: 'top-center',
-      previewRect: previewRect,
-      menuSize: menuSize,
-      menuPosition: (p) => Offset(
-        (bounds.left + bounds.right) / 2 - menuSize.width / 2,
-        p.top - _kMenuSpacing - menuSize.height,
+    topGeometries.add(
+      _MenuGeometry(
+        id: 'top-center',
+        previewRect: previewRect,
+        menuSize: menuSize,
+        menuPosition: (p) => Offset(
+          (bounds.left + bounds.right) / 2 - menuSize.width / 2,
+          p.top - _kMenuSpacing - menuSize.height,
+        ),
+        menuAlignment: Alignment.bottomCenter,
       ),
-      menuAlignment: Alignment.bottomCenter,
-    ));
+    );
 
     // 根据偏好方向返回几何布局列表
     if (preferBottom) {
