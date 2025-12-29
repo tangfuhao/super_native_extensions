@@ -384,22 +384,26 @@ class OverlayWidgetState extends State<OverlayWidget>
 
   void hide() {
     if (!mounted) {
-      widget.onCancel;
+      widget.onCancel();
       return;
     }
+    final originalLift = _currentState.liftFactor;
     final originalMenu = _currentState.menuFactor;
     final originalMenuOffset = _currentState.menuOverdrag;
+    // Use reverse animation (back to original position) instead of fade out
     _hidingAnimation =
-        SimpleAnimation.animate(const Duration(milliseconds: 300), (value) {
+        SimpleAnimation.animate(const Duration(milliseconds: 200), (value) {
       if (!mounted) {
         return;
       }
+      final easedValue = _easeOut(value);
       setState(() {
-        _hideFactor = value;
         _currentState = _currentState.copyWith(
-          menuFactor: ui.lerpDouble(originalMenu, 0, _easeOut(value))!,
+          // Animate liftFactor back to 0 (return to original size/position)
+          liftFactor: ui.lerpDouble(originalLift, 0, easedValue)!,
+          menuFactor: ui.lerpDouble(originalMenu, 0, easedValue)!,
           menuOverdrag:
-              Offset.lerp(originalMenuOffset, Offset.zero, _easeOut(value))!,
+              Offset.lerp(originalMenuOffset, Offset.zero, easedValue)!,
         );
       });
     }, onEnd: () {

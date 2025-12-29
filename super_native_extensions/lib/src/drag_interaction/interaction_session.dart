@@ -151,9 +151,6 @@ class DragInteractionSession implements DragDelegate {
     }
     _entry.remove();
     configuration.onFinished();
-
-    // Notify that the entire interaction has ended
-    configuration.menuConfiguration?.onInteractionEnd?.call();
   }
 
   @override
@@ -175,6 +172,9 @@ class DragInteractionSession implements DragDelegate {
   void beginTransitonToMenu() {
     configuration.menuConfiguration?.onMenuShown();
     _menuShown = true;
+    // Trigger onInteractionEnd when entering preview mode (background is blurred)
+    // so the original child can be shown safely
+    configuration.menuConfiguration?.onInteractionEnd?.call();
   }
 
   @override
